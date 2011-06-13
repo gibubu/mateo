@@ -31,7 +31,7 @@ class ProveedorController {
         if (proveedor.save(flush: true)) {
                 
             flash.message = message(code: 'default.created.message', args: [message(code: 'proveedor.label', default: 'Proveedor'), proveedor.nombre])
-            redirect( action: "edita", id: proveedor.id)
+            redirect( action: "ver", id: proveedor.id)
             }
             else {
                 render(view: "nueva", model: [proveedor: proveedor])
