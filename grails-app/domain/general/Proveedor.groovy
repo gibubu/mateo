@@ -1,6 +1,6 @@
 package general
 
-class Proveedor implements java.io.Serializable {
+class Proveedor { //implements java.io.Serializable {
     String nombre
     String nombreCompleto
     String rfc
