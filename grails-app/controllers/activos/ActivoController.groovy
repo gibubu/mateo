@@ -18,12 +18,16 @@ class ActivoController {
         redirect(action: lista, params: params)
     }
 
-  def lista = {
-        params.max = Math.min(params.max ? params.max.toInteger() : 10, 100)
-        def resultado = activoService.listaConCantidad(params.id)
-        return [activos: resultado.lista, totalDeActivos: resultado.cantidad, acumulada: resultado.acumulada, mensual: resultado.mensual, anual: resultado.anual, costoTotal: resultado.costoTotal]
-    }
-    
+//  def lista = {
+//        params.max = Math.min(params.max ? params.max.toInteger() : 10, 100)
+//        def resultado = activoService.listaConCantidad(params.id)
+//        return [activos: resultado.lista, totalDeActivos: resultado.cantidad, acumulada: resultado.acumulada, mensual: resultado.mensual, anual: resultado.anual, costoTotal: resultado.costoTotal]
+//    }
+    def lista = {
+		params.max = Math.min(params.max ? params.int('max') : 10, 100)
+                def activo = Activo.get(params.id)
+		[activos: Activo.list(params), totalDeActivos: Activo.count()]
+	}
    
     
 
@@ -51,22 +55,37 @@ class ActivoController {
         activo.properties = params
         return [activo:activo, tiposDeActivo:tiposDeActivo, motivos: motivos()]
     }
+//    
+//     def crea = {
+//        def activo = new Activo(params)
+//        if (activo.save(flush: true)) {    
+//            flash.message = message(code: 'default.created.message', args: [message(code: 'activo.label', default: 'Activo'), activo.nombre])
+//            redirect( action: "ver", id: activo.id)
+//        }
+//        else {
+//            render(view: "nuevo", model: [activo: activo])
+//        }
+//    }
+
 
     def crea = {
         def activo
-
+        def tiposDeActivo
+        
         try {
-            Activo.withTransaction {
+           // Activo.withTransaction {
                 def fechaCompra = new Date().parse('dd/MM/yyyy',params.fechaCompra)
                 params.remove 'fechaCompra'
                 activo = new Activo(params)
                 activo.fechaCompra = fechaCompra
                 //activo = activoService.crea(activo)
-                activo = Activo.save(activo)
-
-                flash.message = message(code:"activo.crea",args:[activo.folio])
-                redirect(action:"ver", id:activo.id)
-           }
+                //activo = Activo.save(activo)
+                if (tipoActivo.save(flush: true)) { 
+                    flash.message = message(code:"activo.crea",args:[activo.folio])
+                    redirect(action:"ver", id:activo.id)
+                }
+                
+           //}
         } catch(Exception e) {
             log.error("No se pudo crear la activo",e)
             if (activo) {
