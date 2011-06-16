@@ -16,7 +16,7 @@ class EjercicioController {
 
 	def lista = {
 		params.max = Math.min(params.max ? params.int('max') : 10, 100)
-        def usuario = springSecurityService.currentUser
+                def usuario = springSecurityService.currentUser
 		[ejercicios: Ejercicio.findAllByEmpresa(usuario.empresa, params), totalDeEjercicios: Ejercicio.countByEmpresa(usuario.empresa)]
 	}
 

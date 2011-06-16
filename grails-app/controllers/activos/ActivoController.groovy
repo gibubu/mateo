@@ -23,6 +23,9 @@ class ActivoController {
         def resultado = activoService.listaConCantidad(params.id)
         return [activos: resultado.lista, totalDeActivos: resultado.cantidad, acumulada: resultado.acumulada, mensual: resultado.mensual, anual: resultado.anual, costoTotal: resultado.costoTotal]
     }
+    
+   
+    
 
     def listaEnHojaDeCalculo = {
         try {
@@ -44,7 +47,7 @@ class ActivoController {
 
     def nuevo = {
         Activo activo = new Activo(params)
-        def tiposDeActivo = tipoActivoService.lista(null)
+        //def tiposDeActivo = tipoActivoService.lista(null)
         activo.properties = params
         return [activo:activo, tiposDeActivo:tiposDeActivo, motivos: motivos()]
     }
@@ -58,7 +61,7 @@ class ActivoController {
                 params.remove 'fechaCompra'
                 activo = new Activo(params)
                 activo.fechaCompra = fechaCompra
-                activo = activoService.crea(activo)
+                //activo = activoService.crea(activo)
                 activo = Activo.save(activo)
 
                 flash.message = message(code:"activo.crea",args:[activo.folio])
@@ -70,7 +73,7 @@ class ActivoController {
                 activo.discard()
             }
             flash.message = message(code:"activo.noCrea")
-            def tiposDeActivo = tipoActivoService.lista(null)
+            //def tiposDeActivo = tipoActivoService.lista(null)
             render(view:"nuevo", model: [activo: activo, tiposDeActivo:tiposDeActivo, motivos: motivos()])
         }
     }
@@ -79,13 +82,13 @@ class ActivoController {
         if (params?.activo?.id) {
             params.id = params.activo.id
         }
-        def activo = activoService.obtiene(params.id)
+        //def activo = activoService.obtiene(params.id)
         def activo = Activo.get(params.id)
         return [activo:activo]
     }
 
     def edita = {
-        def activo = activoService.obtiene(params.id)
+        //def activo = activoService.obtiene(params.id)
         def activo = Activo.get(params.id)
         def tiposDeActivos = TiposDeActivos.get(params.id)
         def motivos = Motivos.get(params.id)
