@@ -24,10 +24,10 @@ class ActivoController {
 //        return [activos: resultado.lista, totalDeActivos: resultado.cantidad, acumulada: resultado.acumulada, mensual: resultado.mensual, anual: resultado.anual, costoTotal: resultado.costoTotal]
 //    }
     def lista = {
-		params.max = Math.min(params.max ? params.int('max') : 10, 100)
-                def activo = Activo.get(params.id)
-		[activos: Activo.list(params), totalDeActivos: Activo.count()]
-	}
+        params.max = Math.min(params.max ? params.max.toInteger() : 10, 100)
+        def usuario = springSecurityService.currentUser
+        [activos: Activo.findAllByEmpresa(usuario.empresa, params), totalDeActivos: Activo.countByEmpresa(usuario.empresa)]
+    }
    
     
 
@@ -55,47 +55,50 @@ class ActivoController {
         activo.properties = params
         return [activo:activo, tiposDeActivo:tiposDeActivo, motivos: motivos()]
     }
-//    
-//     def crea = {
-//        def activo = new Activo(params)
-//        if (activo.save(flush: true)) {    
-//            flash.message = message(code: 'default.created.message', args: [message(code: 'activo.label', default: 'Activo'), activo.nombre])
-//            redirect( action: "ver", id: activo.id)
-//        }
-//        else {
-//            render(view: "nuevo", model: [activo: activo])
-//        }
-//    }
-
-
+    
     def crea = {
-        def activo
-        def tiposDeActivo
-        
-        try {
-           // Activo.withTransaction {
-                def fechaCompra = new Date().parse('dd/MM/yyyy',params.fechaCompra)
-                params.remove 'fechaCompra'
-                activo = new Activo(params)
-                activo.fechaCompra = fechaCompra
-                //activo = activoService.crea(activo)
-                //activo = Activo.save(activo)
-                if (tipoActivo.save(flush: true)) { 
-                    flash.message = message(code:"activo.crea",args:[activo.folio])
-                    redirect(action:"ver", id:activo.id)
-                }
-                
-           //}
-        } catch(Exception e) {
-            log.error("No se pudo crear la activo",e)
-            if (activo) {
-                activo.discard()
-            }
-            flash.message = message(code:"activo.noCrea")
-            //def tiposDeActivo = tipoActivoService.lista(null)
-            render(view:"nuevo", model: [activo: activo, tiposDeActivo:tiposDeActivo, motivos: motivos()])
+        def activo= new Activo(params)
+        def usuario = springSecurityService.currentUser
+        activo.empresa = usuario.empresa
+
+        if (activo.save(flush: true)) {    
+            flash.message = message(code: 'default.created.message', args: [message(code: 'activo.label', default: 'Activo'), activo.folio])
+            redirect( action: "ver", id: activo.id)
+        }
+        else {
+            render(view: "nuevo", model: [activo: activo])
         }
     }
+
+//
+//    def crea = {
+//        def activo
+//        def tiposDeActivo
+//        
+//        try {
+//           // Activo.withTransaction {
+//                def fechaCompra = new Date().parse('dd/MM/yyyy',params.fechaCompra)
+//                params.remove 'fechaCompra'
+//                activo = new Activo(params)
+//                activo.fechaCompra = fechaCompra
+//                //activo = activoService.crea(activo)
+//                //activo = Activo.save(activo)
+//                if (tipoActivo.save(flush: true)) { 
+//                    flash.message = message(code:"activo.crea",args:[activo.folio])
+//                    redirect(action:"ver", id:activo.id)
+//                }
+//                
+//           //}
+//        } catch(Exception e) {
+//            log.error("No se pudo crear la activo",e)
+//            if (activo) {
+//                activo.discard()
+//            }
+//            flash.message = message(code:"activo.noCrea")
+//            //def tiposDeActivo = tipoActivoService.lista(null)
+//            render(view:"nuevo", model: [activo: activo, tiposDeActivo:tiposDeActivo, motivos: motivos()])
+//        }
+//    }
 
     def ver = {
         if (params?.activo?.id) {
@@ -105,15 +108,20 @@ class ActivoController {
         def activo = Activo.get(params.id)
         return [activo:activo]
     }
-
-    def edita = {
-        //def activo = activoService.obtiene(params.id)
+    
+def edita = {
         def activo = Activo.get(params.id)
-        def tiposDeActivos = TiposDeActivos.get(params.id)
-        def motivos = Motivos.get(params.id)
-        def tiposDeActivo = tipoActivoService.lista(null)
-        return [activo:activo, tiposDeActivo:tiposDeActivo, motivos: motivos()]
+        return [activo:activo]
     }
+
+//    def edita = {
+//        //def activo = activoService.obtiene(params.id)
+//        def activo = Activo.get(params.id)
+//        def tiposDeActivos = TiposDeActivos.get(params.id)
+//        def motivos = Motivos.get(params.id)
+//        def tiposDeActivo = tipoActivoService.lista(null)
+//        return [activo:activo, tiposDeActivo:tiposDeActivo, motivos: motivos()]
+//    }
 
     def actualiza = {
         log.debug "Actualizando activo $params.id"

@@ -24,8 +24,10 @@ class ProveedorController {
         return [proveedor:proveedor]
     }
 
-    def crea = {
+   def crea = {
         def proveedor = new Proveedor(params)
+        def usuario = springSecurityService.currentUser
+        proveedor.empresa = usuario.empresa
         if (proveedor.save(flush: true)) {    
             flash.message = message(code: 'default.created.message', args: [message(code: 'proveedor.label', default: 'Proveedor'), proveedor.nombre])
             redirect( action: "ver", id: proveedor.id)
